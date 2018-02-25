@@ -39,6 +39,7 @@ module sys_top
 	output		  AUDIO_R,
 	output		  AUDIO_SPDIF,
 
+`ifndef NO_HDMI
 	//////////// HDMI //////////
 	output        HDMI_I2C_SCL,
 	inout         HDMI_I2C_SDA,
@@ -55,6 +56,7 @@ module sys_top
 	output        HDMI_TX_VS,
 	
 	input         HDMI_TX_INT,
+`endif /* NO_HDMI */
 
 	//////////// SDR ///////////
 	output [12:0] SDRAM_A,
@@ -223,6 +225,7 @@ always@(posedge clk_sys) begin
 		if(cmd == 'h20) begin
 			cnt <= cnt + 1'd1;
 			if(cnt<8) begin
+`ifndef NO_HDMI
 				case(cnt)
 					0: WIDTH  = io_din[11:0];
 					1: HFP    = io_din[11:0];
@@ -233,6 +236,7 @@ always@(posedge clk_sys) begin
 					6: VS     = io_din[11:0];
 					7: VBP    = io_din[11:0];
 				endcase
+`endif /* NO_HDMI */
 				if(!cnt) begin
 					cfg_custom_p1 <= 0;
 					cfg_custom_p2 <= 0;
@@ -381,6 +385,7 @@ vip_config vip_config
 /////////////////////////  Lite version  ////////////////////////////////
 
 `ifdef LITE
+`ifndef NO_HDMI
 
 wire [11:0] x;
 wire [11:0] y;
@@ -442,6 +447,8 @@ pattern_vg
 	.pattern(patt),
 	.ramp_step(20'h0333)
 );
+`endif /* NO_HDMI */
+
 
 wire reset;
 sysmem_lite sysmem
@@ -498,6 +505,7 @@ sysmem_lite sysmem
 
 
 /////////////////////////  HDMI output  /////////////////////////////////
+`ifndef NO_HDMI
 
 pll_hdmi pll_hdmi
 (
@@ -621,7 +629,7 @@ i2s i2s
 	.left_chan (audio_l >> !audio_s),
 	.right_chan(audio_r >> !audio_s)
 );
-
+`endif  /* NO_HDMI */
 
 /////////////////////////  VGA output  //////////////////////////////////
 
